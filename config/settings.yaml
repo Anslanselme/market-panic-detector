@@ -1,0 +1,44 @@
+data:
+  start: "2007-01-01"
+  end: null              # null = today
+  cache_dir: data/cache
+  max_retries: 5
+  retry_base_delay_s: 2.0   # delay doubles on each retry
+
+metrics:
+  windows: [60, 250]       # rolling windows in trading days
+  min_coverage: 0.95       # a stock enters a window only with >= 95 % valid returns in it
+  absorption_fraction: 0.2 # absorption ratio uses the top N/5 eigenvalues
+
+network:
+  # Pull of each node toward its previous-day position (anchored stress).
+  # 0 = redraw from scratch each day (jumpy); higher = steadier but slower to adapt.
+  layout_stiffness: 1.0
+
+regime:
+  # Expanding (past-only) percentile of the mean correlation.
+  tension_percentile: 60
+  panic_percentile: 90
+  min_history: 250         # observations needed before a regime is assigned
+
+event_study:
+  drawdown_threshold: 0.10 # SPY peak-to-trough decline that defines an event
+  days_before: 60
+  days_after: 20
+  forward_horizon: 20      # SPY forward return horizon for the predictive test
+
+# Annotated crises (highlighted on the charts). Labels live in i18n under "crisis.<id>".
+crises:
+  - {id: gfc_2008,        start: "2007-10-09", end: "2009-03-09"}
+  - {id: eurozone_2011,   start: "2011-07-22", end: "2011-10-03"}
+  - {id: china_2015,      start: "2015-08-10", end: "2016-02-11"}
+  - {id: q4_2018,         start: "2018-10-01", end: "2018-12-24"}
+  - {id: covid_2020,      start: "2020-02-19", end: "2020-03-23"}
+  - {id: inflation_2022,  start: "2022-01-03", end: "2022-10-12"}
+
+ui:
+  default_window: 60
+  default_language: en
+  playback_speeds: [1, 2, 5, 10, 20]   # trading days advanced per frame
+  playback_fps: 12
+  transition_ms: 250

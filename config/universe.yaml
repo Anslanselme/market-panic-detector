@@ -1,0 +1,80 @@
+# Universe of 50 US large caps, grouped into 8 sector groups.
+# Chosen with today's knowledge: this introduces survivorship bias (see README).
+# Sector ids are translated in src/panic_detector/i18n/*.json under "sector.<id>".
+
+benchmark:
+  ticker: SPY
+  name: SPDR S&P 500 ETF Trust
+
+# Highlighted on the network and in the price chart, with their signature colours.
+leaders: [NVDA, AAPL, MSFT, GOOGL, AMZN, META, TSLA]
+
+sectors:
+  - technology
+  - communication
+  - consumer_discretionary
+  - consumer_staples
+  - financials
+  - healthcare
+  - energy_materials
+  - industrials_utilities
+
+stocks:
+  # Technology (10)
+  - {ticker: NVDA,  name: NVIDIA,                  sector: technology}
+  - {ticker: AAPL,  name: Apple,                   sector: technology}
+  - {ticker: MSFT,  name: Microsoft,               sector: technology}
+  - {ticker: AVGO,  name: Broadcom,                sector: technology}
+  - {ticker: ORCL,  name: Oracle,                  sector: technology}
+  - {ticker: CSCO,  name: Cisco Systems,           sector: technology}
+  - {ticker: ADBE,  name: Adobe,                   sector: technology}
+  - {ticker: CRM,   name: Salesforce,              sector: technology}
+  - {ticker: INTC,  name: Intel,                   sector: technology}
+  - {ticker: QCOM,  name: Qualcomm,                sector: technology}
+  # Communication services (5)
+  - {ticker: GOOGL, name: Alphabet,                sector: communication}
+  - {ticker: META,  name: Meta Platforms,          sector: communication}
+  - {ticker: NFLX,  name: Netflix,                 sector: communication}
+  - {ticker: DIS,   name: Walt Disney,             sector: communication}
+  - {ticker: VZ,    name: Verizon,                 sector: communication}
+  # Consumer discretionary (5)
+  - {ticker: AMZN,  name: Amazon,                  sector: consumer_discretionary}
+  - {ticker: TSLA,  name: Tesla,                   sector: consumer_discretionary}
+  - {ticker: HD,    name: Home Depot,              sector: consumer_discretionary}
+  - {ticker: MCD,   name: McDonald's,              sector: consumer_discretionary}
+  - {ticker: NKE,   name: Nike,                    sector: consumer_discretionary}
+  # Consumer staples (5)
+  - {ticker: WMT,   name: Walmart,                 sector: consumer_staples}
+  - {ticker: PG,    name: Procter & Gamble,        sector: consumer_staples}
+  - {ticker: KO,    name: Coca-Cola,               sector: consumer_staples}
+  - {ticker: PEP,   name: PepsiCo,                 sector: consumer_staples}
+  - {ticker: COST,  name: Costco,                  sector: consumer_staples}
+  # Financials (7)
+  - {ticker: JPM,   name: JPMorgan Chase,          sector: financials}
+  - {ticker: BAC,   name: Bank of America,         sector: financials}
+  - {ticker: WFC,   name: Wells Fargo,             sector: financials}
+  - {ticker: GS,    name: Goldman Sachs,           sector: financials}
+  - {ticker: BRK-B, name: Berkshire Hathaway,      sector: financials}
+  - {ticker: V,     name: Visa,                    sector: financials}
+  - {ticker: MA,    name: Mastercard,              sector: financials}
+  # Healthcare (6)
+  - {ticker: UNH,   name: UnitedHealth,            sector: healthcare}
+  - {ticker: JNJ,   name: Johnson & Johnson,       sector: healthcare}
+  - {ticker: LLY,   name: Eli Lilly,               sector: healthcare}
+  - {ticker: PFE,   name: Pfizer,                  sector: healthcare}
+  - {ticker: MRK,   name: Merck,                   sector: healthcare}
+  - {ticker: ABT,   name: Abbott Laboratories,     sector: healthcare}
+  # Energy & materials (5)
+  - {ticker: XOM,   name: Exxon Mobil,             sector: energy_materials}
+  - {ticker: CVX,   name: Chevron,                 sector: energy_materials}
+  - {ticker: COP,   name: ConocoPhillips,          sector: energy_materials}
+  - {ticker: SLB,   name: Schlumberger,            sector: energy_materials}
+  - {ticker: FCX,   name: Freeport-McMoRan,        sector: energy_materials}
+  # Industrials & utilities (7)
+  - {ticker: CAT,   name: Caterpillar,             sector: industrials_utilities}
+  - {ticker: HON,   name: Honeywell,               sector: industrials_utilities}
+  - {ticker: GE,    name: GE Aerospace,            sector: industrials_utilities}
+  - {ticker: UNP,   name: Union Pacific,           sector: industrials_utilities}
+  - {ticker: BA,    name: Boeing,                  sector: industrials_utilities}
+  - {ticker: NEE,   name: NextEra Energy,          sector: industrials_utilities}
+  - {ticker: DUK,   name: Duke Energy,             sector: industrials_utilities}

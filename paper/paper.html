@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A Correlation-Network Panic Detector for US Large Caps</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+@page {
+  size: A4;
+  margin: 27mm 26mm 28mm;
+  @bottom-center { content: counter(page); font-family: 'Old Standard TT', Cambria, serif; font-size: 10pt; color: #111; }
+}
+@page :first { @bottom-center { content: none; } }
+html { counter-reset: section figure table; }
+body { font-family: 'Old Standard TT', Cambria, 'Times New Roman', serif; font-size: 10.6pt; line-height: 1.36;
+       color: #111; text-align: justify; hyphens: auto; margin: 0; }
+p { margin: 0 0 6.5pt; }
+.title { text-align: center; font-weight: 400; font-size: 20pt; line-height: 1.25; margin: 14mm 0 9mm; }
+.author { text-align: center; font-size: 12pt; margin: 0 0 2mm; }
+.date { text-align: center; font-size: 11pt; margin: 0 0 11mm; }
+.abstract-head { text-align: center; font-size: 11pt; font-weight: 700; margin: 0 0 3mm; }
+.abstract { margin: 0 10mm; font-size: 10.2pt; }
+.meta { margin: 4mm 10mm 0; font-size: 10.2pt; }
+.first-break { break-after: page; }
+h2 { font-size: 13pt; font-weight: 700; margin: 15pt 0 6pt; break-after: avoid; }
+h2::before { counter-increment: section; content: counter(section) "\2003"; }
+h2.unnumbered::before { content: none; counter-increment: none; }
+h3 { font-size: 11pt; font-weight: 700; margin: 11pt 0 4pt; break-after: avoid; }
+figure { margin: 9pt 0 11pt; text-align: center; break-inside: avoid; }
+figure img { width: 100%; }
+figure.narrow img { width: 88%; }
+figcaption { font-size: 10pt; margin-top: 4pt; text-align: center; }
+figcaption::before { counter-increment: figure; content: "Figure " counter(figure) ": "; }
+.table-wrap { margin: 9pt 0 11pt; break-inside: avoid; }
+.table-caption { font-size: 10pt; text-align: center; margin-bottom: 4pt; }
+.table-caption::before { counter-increment: table; content: "Table " counter(table) ": "; }
+table { border-collapse: collapse; margin: 0 auto; font-size: 9pt; line-height: 1.25; text-align: left; }
+thead th { border-top: 1.1pt solid #111; border-bottom: 0.6pt solid #111; padding: 3pt 6pt; font-weight: 700; }
+tbody td { padding: 2pt 6pt; }
+th, td { white-space: nowrap; }
+td.wrap { white-space: normal; }
+tbody tr:last-child td { border-bottom: 1.1pt solid #111; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.note { font-size: 9pt; margin: 3pt 6mm 0; text-align: justify; }
+.equation { text-align: center; margin: 7pt 0; }
+math { font-size: 110%; }
+.refs p { padding-left: 6mm; text-indent: -6mm; font-size: 10pt; margin-bottom: 4pt; }
+b.runin { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<h1 class="title">A Correlation-Network Panic Detector<br>for US Large Caps</h1>
+<p class="author">Anselme Drugeon</p>
+<p class="date">November 2026</p>
+<p class="abstract-head">Abstract</p>
+<div class="abstract">
+<p>This paper documents a detector of market panic built on the correlation network of 50 US large caps from 2007 to 2026. Each trading day, on rolling windows of 60 and 250 days, it measures the mean pairwise correlation, the largest eigenvalue of the correlation matrix against its Marchenko-Pastur noise ceiling, the absorption ratio and a minimum spanning tree, and it labels the market calm, tense or panicked from a percentile computed on past data only. On 16 March 2020 a single eigenvalue explains 81% of all movement and the mean link of the tree falls from 0.90 to 0.40. An event study of 17 declines of SPY greater than 10% and predictive tests with non-overlapping samples and Newey-West standard errors find that the indicator reacts during crises but does not anticipate them: it was never in tension or panic at the peak of a fresh decline, and its changes do not predict the next 20 days of returns (r = –0.02, p = 0.77). The measures are shown in a native 3-D dashboard.</p>
+</div>
+<p class="meta"><b>Keywords:</b> correlation network, minimum spanning tree, random matrix theory, absorption ratio, systemic risk, event study</p>
+<p class="meta"><b>JEL classification:</b> G01, G11, G17, C58</p>
+<div class="first-break"></div>
+
+<h2>Introduction</h2>
+<p>Diversification rests on stocks that do not move together. In a quiet market Apple reacts to Apple’s news and Exxon to the price of oil; in a crisis one force (fear, the need for cash, forced selling) dominates, and stocks fall together precisely when diversification is needed most. This paper measures that synchronisation day by day and asks a simple question: does a rise in synchronisation warn of a crash, or does it only describe one under way?</p>
+<p>The measures come from two literatures. Random matrix theory separates the structure of a correlation matrix from its noise (Marchenko and Pastur 1967; Laloux et al. 1999); its largest eigenvalue is the strength of the market factor, and the share of variance held by the top eigenvalues is the absorption ratio of Kritzman et al. (2011). Network methods turn the same matrix into a minimum spanning tree (Mantegna 1999), whose links shorten when correlations rise (Onnela et al. 2003).</p>
+<p>The answer is negative and is reported as such. The indicator is a precise thermometer: it shows how synchronised the market is today and confirms a broad sell-off within days. It is not a barometer: at the peak of every fresh decline it read calm or had no history yet, and its changes carry no information about the next month’s returns.</p>
+
+<h2>Data</h2>
+<p>The sample holds daily closes adjusted for splits and dividends of 50 US large caps and of the SPY exchange-traded fund, downloaded from Yahoo Finance for 3 January 2007 to 23 November 2026 (5,005 trading days). The stocks are grouped into eight sectors (Table 1); seven leaders (NVDA, AAPL, MSFT, GOOGL, AMZN, META, TSLA) are always included. Four stocks list after the start: V, AVGO, TSLA and META. All measures use daily log returns, never prices. A stock enters a window once it has at least 95% of the window’s days, so late listings join the network as soon as they have enough history.</p>
+<div class="table-wrap">
+<p class="table-caption">The universe: 50 US large caps in eight sector groups.</p>
+<table>
+<thead><tr><th>Sector group</th><th class="num">Stocks</th><th>Tickers</th></tr></thead>
+<tbody>
+<tr><td>Technology</td><td class='num'>10</td><td class='wrap'>NVDA, AAPL, MSFT, AVGO, ORCL, CSCO, ADBE, CRM, INTC, QCOM</td></tr>
+<tr><td>Communication services</td><td class='num'>5</td><td class='wrap'>GOOGL, META, NFLX, DIS, VZ</td></tr>
+<tr><td>Consumer discretionary</td><td class='num'>5</td><td class='wrap'>AMZN, TSLA, HD, MCD, NKE</td></tr>
+<tr><td>Consumer staples</td><td class='num'>5</td><td class='wrap'>WMT, PG, KO, PEP, COST</td></tr>
+<tr><td>Financials</td><td class='num'>7</td><td class='wrap'>JPM, BAC, WFC, GS, BRK-B, V, MA</td></tr>
+<tr><td>Healthcare</td><td class='num'>6</td><td class='wrap'>UNH, JNJ, LLY, PFE, MRK, ABT</td></tr>
+<tr><td>Energy and materials</td><td class='num'>5</td><td class='wrap'>XOM, CVX, COP, SLB, FCX</td></tr>
+<tr><td>Industrials and utilities</td><td class='num'>7</td><td class='wrap'>CAT, HON, GE, UNP, BA, NEE, DUK</td></tr>
+</tbody>
+</table>
+</div>
+<p>The universe is chosen with today’s knowledge: an investor in 2007 would have picked a different list, including firms that later shrank or disappeared. The levels of correlation are therefore those of today’s winners, a survivorship bias discussed in Section 6.</p>
+
+<h2>Measures</h2>
+<p>Let <i>C</i> be the <i>N</i>&#8202;×&#8202;<i>N</i> correlation matrix of the stocks present in a window of <i>T</i> days, with eigenvalues λ<sub>1</sub> ≥ λ<sub>2</sub> ≥ … ≥ λ<sub>N</sub> summing to <i>N</i>. Every measure is computed each day for <i>T</i> = 60 and <i>T</i> = 250.</p>
+<h3>Mean correlation and largest eigenvalue</h3>
+<p><b class="runin">Mean correlation.</b> The average of the <i>N</i>(<i>N</i>&#8202;–&#8202;1)/2 = 1,225 off-diagonal correlations. Over the sample it averages 0.33 on the 60-day window, from 0.06 on 9 July 2026 to 0.80 on 16 March 2020.</p>
+<p><b class="runin">Largest eigenvalue.</b> λ<sub>1</sub> measures the strength of the single largest common factor, and λ<sub>1</sub>/<i>N</i> is the share of total variance it explains. It ranges from about 1, when stocks are unrelated, to <i>N</i>, when they move as one. Figure 1 shows both series; they move together, and both jump in every crisis.</p>
+<figure><img src="figures/fig1_timeseries.png" alt="Mean correlation and largest eigenvalue, 2007 to 2026">
+<figcaption>Mean correlation (60 and 250 days) and largest eigenvalue with its noise ceiling, 2007–2026. Shaded: annotated crises (2008, 2011, 2015–16, late 2018, 2020, 2022).</figcaption></figure>
+<h3>Signal or noise: the Marchenko-Pastur ceiling</h3>
+<p>If the <i>N</i> return series were independent noise observed over <i>T</i> days, the eigenvalues of their correlation matrix would follow the Marchenko-Pastur law and stay below</p>
+<div class="equation"><math display="block"><msub><mi>λ</mi><mo>+</mo></msub><mo>=</mo><msup><mrow><mo>(</mo><mn>1</mn><mo>+</mo><msqrt><mi>N</mi><mo>/</mo><mi>T</mi></msqrt><mo>)</mo></mrow><mn>2</mn></msup></math></div>
+<p>which equals 3.66 for 50 stocks and 60 days, and 2.09 for 250 days. Figure 2 compares the spectrum of a calm day with that of the COVID crash. On 1 August 2017 a handful of eigenvalues clear the ceiling: the market factor (λ<sub>1</sub> = 10.5) and a few sector factors. On 16 March 2020 a single eigenvalue of 40.4 out of 50 takes over, and every other one falls back into the noise band.</p>
+<figure><img src="figures/fig2_spectrum.png" alt="Eigenvalue histograms against the Marchenko-Pastur law">
+<figcaption>Eigenvalues of the 60-day correlation matrix against the density of pure noise. Red: the largest eigenvalue.</figcaption></figure>
+<p><b class="runin">Absorption ratio.</b> The share of variance held by the top <i>N</i>/5 = 10 eigenvalues (Kritzman et al. 2011): 71% on 1 August 2017 and 95% on 16 March 2020. A high ratio describes a fragile market, where a shock spreads to every stock.</p>
+<h3>The minimum spanning tree</h3>
+<p><b class="runin">Mechanism.</b> Each correlation becomes a distance,</p>
+<div class="equation"><math display="block"><msub><mi>d</mi><mi>ij</mi></msub><mo>=</mo><msqrt><mn>2</mn><mo>(</mo><mn>1</mn><mo>−</mo><msub><mi>ρ</mi><mi>ij</mi></msub><mo>)</mo></msqrt></math></div>
+<p>which is 0 for stocks that move as twins, √2 for unrelated ones and 2 for opposites. Kruskal’s algorithm keeps the <i>N</i>&#8202;–&#8202;1 = 49 shortest links that connect every stock without a loop (Mantegna 1999).</p>
+<p><b class="runin">Layout.</b> Node positions are fitted to the tree’s path distances by stress majorization, in two and three dimensions. Each day starts from the previous day’s positions, with a pull towards them and a rotation back onto them, so the drawing moves smoothly and keeps one absolute scale: on the 60-day window the median daily move is 1.6% of the tree’s size.</p>
+<p><b class="runin">Reading.</b> In August 2017 the tree is long and the sector branches stand apart, with a mean link of 0.90. On 16 March 2020 it collapses into one tight block with a mean link of 0.40 (Figure 3). About 46% of all links join two stocks of the same sector.</p>
+<figure><img src="figures/fig3_trees.png" alt="Minimum spanning trees on 1 August 2017 and 16 March 2020">
+<figcaption>Minimum spanning trees of the 60-day correlations, drawn at the same scale. Node size: number of links.</figcaption></figure>
+<h3>Regimes without look-ahead</h3>
+<p><b class="runin">Rule.</b> Each day the 60-day mean correlation is ranked among all values observed up to that day, never later ones. Below the 60th percentile the market is CALM, from the 60th to the 90th TENSION, above the 90th PANIC. The first 250 observations are a warm-up with no regime. On the 60-day window the market spends 68% of days in CALM, 22% in TENSION and 5% in PANIC (Figure 4).</p>
+<p><b class="runin">Robustness.</b> A test rewrites the whole future of a series and checks that no past regime changes; a second test checks that classifying a truncated history gives the same answer as the full run.</p>
+<p><b class="runin">Weakness.</b> Because the percentile is expanding, each crisis is judged against every earlier one. The milder late crises (2018, 2022, 2025) are compared with 2008 and 2020 and never reach PANIC.</p>
+<figure><img src="figures/fig4_regimes.png" alt="SPY with tension and panic periods shaded, and SPY drawdown">
+<figcaption>SPY (log scale) and the regime of the 60-day mean correlation. Below: SPY drawdown from its running high.</figcaption></figure>
+
+<h2>Does the indicator anticipate crises?</h2>
+<h3>Event study</h3>
+<p><b class="runin">Design.</b> Declines of SPY are found with a zig-zag rule: a peak is confirmed by a fall of 10%, the trough by a rebound of 10%, so 2010 and 2011 count as separate events although SPY had not regained its 2007 high. This gives 17 declines (Table 2). Some are aftershocks, a new leg down soon after a rebound, which start from a correlation already raised by the previous fall. The 9 “fresh” events are those whose 60-day pre-peak window starts after the previous event ended. The indicator is followed from 60 trading days before each peak to 20 days after.</p>
+<p><b class="runin">Result.</b> Nothing stands out before the peak (Figure 5). On the fresh events the mean correlation averages 0.24 sixty days before the peak and 0.25 at the peak, and its 60-day change ranks at the 62nd percentile of all 60-day changes. No fresh event was in TENSION or PANIC at its peak. After the peak the correlation jumps, to 0.36 twenty days later, but PANIC arrived for only 4 of the 9 fresh events, always after SPY had already fallen 10%: 2 to 32 trading days later (median 6).</p>
+<p><b class="runin">Aftershocks.</b> Over all 17 events, 13 of 17 show a pre-peak rise larger than the median (sign test <i>p</i> = 0.049). The excess comes from new legs down inside 2008, late 2015 and 2022; on fresh events it disappears (6 of 9, <i>p</i> = 0.51).</p>
+<figure><img src="figures/fig5_eventstudy.png" alt="Mean correlation around SPY peaks">
+<figcaption>Left: mean correlation around SPY peaks (grey: fresh events; blue: their mean). Top right: the median pre-peak change (red) among all 60-day changes. Bottom right: trading days from the –10% line to the first PANIC.</figcaption></figure>
+<div class="table-wrap">
+<p class="table-caption">SPY declines of more than 10% and the 60-day indicator.</p>
+<table>
+<thead><tr><th>Peak</th><th>–10% crossed</th><th>Trough</th><th class="num">Depth</th><th>Fresh</th><th class="num">Corr. at peak</th><th>Regime at peak</th><th class="num">PANIC after –10%</th></tr></thead>
+<tbody>
+<tr><td>2007-10-09</td><td>2008-01-08</td><td>2008-03-10</td><td class='num'>–17.8%</td><td>yes</td><td class='num'>0.45</td><td>warm-up</td><td class='num'>–</td></tr>
+<tr><td>2008-05-19</td><td>2008-06-27</td><td>2008-10-10</td><td class='num'>–37.5%</td><td>aftershock</td><td class='num'>0.36</td><td>CALM</td><td class='num'>+64</td></tr>
+<tr><td>2008-10-13</td><td>2008-10-15</td><td>2008-10-27</td><td class='num'>–17.2%</td><td>aftershock</td><td class='num'>0.60</td><td>PANIC</td><td class='num'>–2</td></tr>
+<tr><td>2008-11-04</td><td>2008-11-11</td><td>2008-11-20</td><td class='num'>–24.9%</td><td>aftershock</td><td class='num'>0.65</td><td>PANIC</td><td class='num'>–5</td></tr>
+<tr><td>2009-01-06</td><td>2009-01-20</td><td>2009-03-09</td><td class='num'>–27.1%</td><td>aftershock</td><td class='num'>0.67</td><td>PANIC</td><td class='num'>–9</td></tr>
+<tr><td>2010-04-23</td><td>2010-05-20</td><td>2010-07-02</td><td class='num'>–15.7%</td><td>yes</td><td class='num'>0.31</td><td>CALM</td><td class='num'>+32</td></tr>
+<tr><td>2011-04-29</td><td>2011-08-04</td><td>2011-10-03</td><td class='num'>–18.6%</td><td>yes</td><td class='num'>0.30</td><td>CALM</td><td class='num'>+2</td></tr>
+<tr><td>2015-07-20</td><td>2015-08-24</td><td>2015-08-25</td><td class='num'>–11.9%</td><td>yes</td><td class='num'>0.36</td><td>CALM</td><td class='num'>+7</td></tr>
+<tr><td>2015-11-03</td><td>2016-01-15</td><td>2016-02-11</td><td class='num'>–12.8%</td><td>aftershock</td><td class='num'>0.60</td><td>TENSION</td><td class='num'>–</td></tr>
+<tr><td>2018-01-26</td><td>2018-02-08</td><td>2018-02-08</td><td class='num'>–10.1%</td><td>yes</td><td class='num'>0.12</td><td>CALM</td><td class='num'>–</td></tr>
+<tr><td>2018-09-20</td><td>2018-12-14</td><td>2018-12-24</td><td class='num'>–19.3%</td><td>aftershock</td><td class='num'>0.13</td><td>CALM</td><td class='num'>–</td></tr>
+<tr><td>2020-02-19</td><td>2020-02-27</td><td>2020-03-23</td><td class='num'>–33.7%</td><td>yes</td><td class='num'>0.25</td><td>CALM</td><td class='num'>+4</td></tr>
+<tr><td>2022-01-03</td><td>2022-02-22</td><td>2022-03-08</td><td class='num'>–12.9%</td><td>yes</td><td class='num'>0.24</td><td>CALM</td><td class='num'>–</td></tr>
+<tr><td>2022-03-29</td><td>2022-04-29</td><td>2022-06-16</td><td class='num'>–20.6%</td><td>aftershock</td><td class='num'>0.27</td><td>CALM</td><td class='num'>–</td></tr>
+<tr><td>2022-08-16</td><td>2022-09-20</td><td>2022-10-12</td><td class='num'>–16.7%</td><td>aftershock</td><td class='num'>0.42</td><td>TENSION</td><td class='num'>–</td></tr>
+<tr><td>2025-02-19</td><td>2025-03-13</td><td>2025-04-08</td><td class='num'>–18.8%</td><td>yes</td><td class='num'>0.16</td><td>CALM</td><td class='num'>–</td></tr>
+<tr><td>2026-10-06</td><td>2026-11-20</td><td>2026-11-20</td><td class='num'>–11.5%</td><td>yes</td><td class='num'>0.08</td><td>CALM</td><td class='num'>–</td></tr>
+</tbody>
+</table>
+<p class="note">“PANIC after –10%”: trading days between the day the decline crossed –10% and the first PANIC day; negative when PANIC was already present; a dash when PANIC never came before 20 days after the trough.</p>
+</div>
+<h3>Predictive tests</h3>
+<p><b class="runin">Test.</b> SPY’s log return over the next 20 trading days is set against three signals known on the day: the 20-day change in mean correlation, its level, and the 20-day change in the absorption ratio. Each is tested two ways: Pearson and Spearman correlations on non-overlapping 20-day samples, and an ordinary least-squares regression on all days with Newey-West standard errors (Newey and West 1987) and 20 lags. A same-period test, against SPY’s return over the previous 20 days, measures reaction rather than anticipation.</p>
+<p><b class="runin">Result.</b> No forward test is significant on the 60-day window (Table 3, Figure 6). Over the same 20 days the link is strong: <i>r</i> = –0.49 on the 60-day window and –0.45 on the 250-day window. The only nominal exception is the level of the 250-day correlation, significant with Newey-West errors (<i>p</i> = 0.015) but not on non-overlapping samples (<i>p</i> = 0.064). Its sign is positive: higher correlation was followed by slightly higher returns, as Pollet and Wilson (2010) find for average correlation, which is the opposite of a crash warning. With six forward tests, 0.3 false positives are expected at the 5% level by chance alone.</p>
+<figure><img src="figures/fig6_predictive.png" alt="Change in correlation against SPY returns">
+<figcaption>The 20-day change in mean correlation against SPY’s next 20 days (left) and the same 20 days (middle), on non-overlapping samples; right: Pearson correlations of the four tests.</figcaption></figure>
+<div class="table-wrap">
+<p class="table-caption">Predictive and same-period tests.</p>
+<table>
+<thead><tr><th>Window</th><th>Test</th><th>Signal</th><th class="num">Pearson <i>r</i></th><th class="num"><i>p</i></th><th class="num">NW slope (%/sd)</th><th class="num">NW <i>t</i></th><th class="num">NW <i>p</i></th></tr></thead>
+<tbody>
+<tr><td>60 days</td><td>forward</td><td>Δ mean corr.</td><td class='num'>–0.019</td><td class='num'>0.766</td><td class='num'>–0.16</td><td class='num'>–0.53</td><td class='num'>0.597</td></tr>
+<tr><td>60 days</td><td>forward</td><td>Corr. level</td><td class='num'>+0.080</td><td class='num'>0.212</td><td class='num'>+0.30</td><td class='num'>+1.22</td><td class='num'>0.221</td></tr>
+<tr><td>60 days</td><td>forward</td><td>Δ absorption</td><td class='num'>–0.009</td><td class='num'>0.883</td><td class='num'>–0.12</td><td class='num'>–0.42</td><td class='num'>0.674</td></tr>
+<tr><td>60 days</td><td>same period</td><td>Δ mean corr.</td><td class='num'>–0.487</td><td class='num'>< 0.001</td><td class='num'>–2.06</td><td class='num'>–5.45</td><td class='num'>< 0.001</td></tr>
+<tr><td>250 days</td><td>forward</td><td>Δ mean corr.</td><td class='num'>–0.044</td><td class='num'>0.500</td><td class='num'>+0.01</td><td class='num'>+0.04</td><td class='num'>0.969</td></tr>
+<tr><td>250 days</td><td>forward</td><td>Corr. level</td><td class='num'>+0.121</td><td class='num'>0.064</td><td class='num'>+0.56</td><td class='num'>+2.44</td><td class='num'>0.015</td></tr>
+<tr><td>250 days</td><td>forward</td><td>Δ absorption</td><td class='num'>–0.022</td><td class='num'>0.737</td><td class='num'>–0.02</td><td class='num'>–0.04</td><td class='num'>0.967</td></tr>
+<tr><td>250 days</td><td>same period</td><td>Δ mean corr.</td><td class='num'>–0.454</td><td class='num'>< 0.001</td><td class='num'>–2.35</td><td class='num'>–6.56</td><td class='num'>< 0.001</td></tr>
+</tbody>
+</table>
+<p class="note">Pearson <i>r</i> and <i>p</i> on non-overlapping 20-day samples; NW: OLS on all days with Newey-West standard errors (20 lags), slope in percentage points of 20-day return per standard deviation of the signal.</p>
+</div>
+
+<h2>The dashboard</h2>
+<p>The measures are precomputed and shown in a native desktop application written in Python with PySide6 and pyqtgraph (Figure 7). The top row gives the four indicators and the regime; the tree is drawn in three dimensions and can be turned and zoomed; the seven leaders’ prices and both series over time sit beside and below it; a timeline replays 2007 to 2026. Clicking a node opens a card with the company’s activity, its links in the tree with their correlation, and its average correlation, beta to SPY, volatility and return over the window. The interface switches live between English, French and Chinese.</p>
+<figure class="narrow"><img src="figures/dashboard_card.jpg" alt="The dashboard on 5 August 2024 with NVIDIA's card open">
+<figcaption>The dashboard on 5 August 2024, with NVIDIA’s card open.</figcaption></figure>
+
+<h2>Limitations</h2>
+<p><b class="runin">Survivorship bias.</b> The 50 stocks are today’s large caps, chosen with hindsight; the measured correlations are those of firms that survived and grew.</p>
+<p><b class="runin">Few events.</b> Seventeen declines, nine of them fresh and several belonging to the same crisis, give little statistical power, and rolling windows are strongly autocorrelated. Non-overlapping samples and Newey-West errors address this only in part.</p>
+<p><b class="runin">Hindsight.</b> Peaks are known only after the fact; only the day a decline crosses –10% is observable in real time.</p>
+<p><b class="runin">Data.</b> Adjusted closes come from a single free source and were not checked against a second one.</p>
+
+<h2>Conclusion</h2>
+<p>Mean correlation and the largest eigenvalue are a thermometer, not a barometer. They measure precisely how synchronised the market is: when every stock moves as one, diversification has stopped working, and the network contracts into a single block. They confirm a broad sell-off within days and tell it apart from narrower declines. In this sample they gave no advance warning, and the regime they define describes the structure of the market; it is not a signal to buy or sell.</p>
+
+<h2 class="unnumbered">References</h2>
+<div class="refs">
+<p>Kritzman, M., Li, Y., Page, S. and Rigobon, R. (2011). Principal components as a measure of systemic risk. <i>Journal of Portfolio Management</i> 37(4), 112–126.</p>
+<p>Laloux, L., Cizeau, P., Bouchaud, J.-P. and Potters, M. (1999). Noise dressing of financial correlation matrices. <i>Physical Review Letters</i> 83(7), 1467–1470.</p>
+<p>Mantegna, R. N. (1999). Hierarchical structure in financial markets. <i>European Physical Journal B</i> 11, 193–197.</p>
+<p>Marchenko, V. A. and Pastur, L. A. (1967). Distribution of eigenvalues for some sets of random matrices. <i>Mathematics of the USSR-Sbornik</i> 1(4), 457–483.</p>
+<p>Newey, W. K. and West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. <i>Econometrica</i> 55(3), 703–708.</p>
+<p>Onnela, J.-P., Chakraborti, A., Kaski, K., Kertész, J. and Kanto, A. (2003). Dynamics of market correlations: taxonomy and portfolio analysis. <i>Physical Review E</i> 68, 056110.</p>
+<p>Pollet, J. M. and Wilson, M. (2010). Average correlation and stock market returns. <i>Journal of Financial Economics</i> 96(3), 364–380.</p>
+</div>
+</body>
+</html>
